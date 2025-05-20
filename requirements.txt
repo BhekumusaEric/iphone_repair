@@ -1,12 +1,19 @@
 # Core dependencies
-# Note: In a real implementation, we would use libimobiledevice
-# and related libraries for iOS device communication
+pyusb>=1.2.1
+construct>=2.10.0
+pyimg4>=0.7.0
+pymobiledevice3>=2.0.0
+libimobiledevice>=1.3.0  # May require manual installation
+libusbmuxd>=2.0.2        # May require manual installation
 
 # UI dependencies
 prompt_toolkit>=3.0.0
 colorama>=0.4.4
+PyQt5>=5.15.6            # For GUI interface
 
 # Development dependencies
 pytest>=7.0.0
 black>=22.0.0
 mypy>=0.9.0
+pytest-mock>=3.7.0
+pytest-cov>=3.0.0
