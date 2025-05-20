@@ -74,6 +74,12 @@ def parse_args(args: List[str]) -> argparse.Namespace:
     )
 
     parser.add_argument(
+        "--ultimate",
+        action="store_true",
+        help="Enable ultimate recovery mode (last resort, may lose data and bypass security)"
+    )
+
+    parser.add_argument(
         "--test",
         action="store_true",
         help="Run tests"

@@ -31,6 +31,7 @@ This tool provides a multi-layered approach to recovering iPhones from boot loop
 - **Dual Interface**: Both command-line and graphical user interfaces
 - **Device Simulation**: Test mode for development and demonstration
 - **Comprehensive Testing**: Extensive test suite for reliability
+- **Ultimate Recovery**: Last-resort option that prioritizes device access over security (may bypass restrictions)
 
 ## Target Devices
 
@@ -51,6 +52,9 @@ python main.py --simulate
 
 # Enable advanced recovery techniques
 python main.py --advanced
+
+# Enable ultimate recovery mode (last resort)
+python main.py --ultimate
 
 # Run tests
 python main.py --test

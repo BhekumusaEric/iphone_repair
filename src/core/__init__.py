@@ -8,6 +8,7 @@ iPhones stuck in boot loops, with special focus on A12 chip devices.
 from .DiagnosticTool import DiagnosticTool, BootLoopCause, DeviceInfo
 from .RecoveryTool import RecoveryTool, RecoveryMethod, RecoveryResult
 from .AdvancedRecovery import AdvancedRecovery, FilesystemRepairResult, FirmwarePatchResult
+from .UltimateRecovery import UltimateRecovery, UltimateRecoveryResult
 
 __all__ = [
     'DiagnosticTool',
@@ -18,5 +19,7 @@ __all__ = [
     'RecoveryResult',
     'AdvancedRecovery',
     'FilesystemRepairResult',
-    'FirmwarePatchResult'
+    'FirmwarePatchResult',
+    'UltimateRecovery',
+    'UltimateRecoveryResult'
 ]
