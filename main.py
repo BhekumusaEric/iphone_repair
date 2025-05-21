@@ -86,6 +86,12 @@ def parse_args(args: List[str]) -> argparse.Namespace:
     )
 
     parser.add_argument(
+        "--limited-docs",
+        action="store_true",
+        help="Access limited documentation support for cases with only affidavits or partial proof"
+    )
+
+    parser.add_argument(
         "--test",
         action="store_true",
         help="Run tests"

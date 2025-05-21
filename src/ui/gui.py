@@ -92,6 +92,8 @@ class WorkerThread(QThread):
                 self._perform_ultimate_recovery()
             elif self.task_type == "generate_inheritance_documents":
                 self._generate_inheritance_documents()
+            elif self.task_type == "generate_limited_documentation":
+                self._generate_limited_documentation()
             else:
                 self.task_error.emit(f"Unknown task type: {self.task_type}")
         except Exception as e:
@@ -289,6 +291,41 @@ class WorkerThread(QThread):
             "contact_info": contact_info,
             "logs": support.logs,
             "inheritance": True
+        })
+
+    def _generate_limited_documentation(self):
+        """Generate limited documentation templates"""
+        output_dir = self.params.get("output_dir")
+
+        self.update_status.emit("Generating limited documentation templates...")
+        self.update_progress.emit(10)
+
+        # Create inheritance support tool
+        support = InheritanceSupport(debug=True)
+
+        # Provide guidance for limited documentation
+        self.update_status.emit("Providing guidance for limited documentation cases...")
+        self.update_progress.emit(30)
+        support.provide_limited_documentation_guidance()
+
+        # Generate limited documentation templates
+        self.update_status.emit("Generating alternative documentation templates...")
+        self.update_progress.emit(50)
+        templates = support.generate_limited_documentation_templates(output_dir)
+
+        # Get Apple support contact information
+        self.update_status.emit("Getting Apple support contact information...")
+        self.update_progress.emit(80)
+        contact_info = support.provide_apple_support_contact_info()
+
+        self.update_progress.emit(100)
+
+        # Return results
+        self.task_complete.emit({
+            "templates": templates,
+            "contact_info": contact_info,
+            "logs": support.logs,
+            "limited_documentation": True
         })
 
 class MainWindow(QMainWindow):
@@ -587,6 +624,34 @@ class MainWindow(QMainWindow):
 
         # Add to layout
         layout.addWidget(docs_group)
+
+        # Create limited documentation group
+        limited_docs_group = QGroupBox("Limited Documentation Support")
+        limited_docs_layout = QVBoxLayout(limited_docs_group)
+
+        # Add limited documentation info
+        limited_docs_label = QLabel(
+            "<b>Don't have all the standard documentation?</b><br><br>"
+            "If you cannot provide all the standard documentation (like in cases where you only have "
+            "an affidavit or limited proof), we can help with alternative approaches:<br><br>"
+            "• Affidavit templates for sworn statements<br>"
+            "• Third-party verification forms<br>"
+            "• Guides for gathering circumstantial evidence<br>"
+            "• Legal aid resources<br>"
+            "• Alternative options when recovery isn't possible<br><br>"
+            "While these alternatives don't guarantee success with Apple, they can help build "
+            "the strongest possible case with the documentation you have available."
+        )
+        limited_docs_label.setWordWrap(True)
+        limited_docs_layout.addWidget(limited_docs_label)
+
+        # Add limited documentation button
+        limited_docs_button = QPushButton("Generate Limited Documentation Templates")
+        limited_docs_button.clicked.connect(self.generate_limited_documentation)
+        limited_docs_layout.addWidget(limited_docs_button)
+
+        # Add to layout
+        layout.addWidget(limited_docs_group)
 
         # Create legal notice group
         legal_group = QGroupBox("Legal Notice")
@@ -1058,6 +1123,91 @@ class MainWindow(QMainWindow):
         msg_box.setTextFormat(Qt.RichText)
         msg_box.setStandardButtons(QMessageBox.Ok)
         msg_box.exec_()
+
+    def generate_limited_documentation(self):
+        """Generate limited documentation templates"""
+        # Get output directory
+        output_dir = QFileDialog.getExistingDirectory(
+            self,
+            "Select Output Directory for Limited Documentation Templates",
+            os.path.expanduser("~"),
+            QFileDialog.ShowDirsOnly
+        )
+
+        if not output_dir:
+            return
+
+        # Show confirmation dialog
+        reply = QMessageBox.question(
+            self,
+            "Limited Documentation Confirmation",
+            "This will generate templates for cases with limited documentation, such as:\n\n"
+            "• Affidavit templates\n"
+            "• Third-party verification forms\n"
+            "• Guides for gathering circumstantial evidence\n"
+            "• Legal aid resources\n"
+            "• Alternative options when recovery isn't possible\n\n"
+            "These templates are designed for cases where standard documentation is unavailable.\n\n"
+            "Do you want to proceed?",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.Yes
+        )
+
+        if reply == QMessageBox.No:
+            return
+
+        # Create worker thread
+        self.worker_thread = WorkerThread(
+            "generate_limited_documentation",
+            {"output_dir": output_dir}
+        )
+
+        # Connect signals
+        self.worker_thread.update_status.connect(self.update_status)
+        self.worker_thread.update_progress.connect(self.update_progress)
+        self.worker_thread.task_complete.connect(self.limited_documentation_generated)
+        self.worker_thread.task_error.connect(self.show_error)
+
+        # Start thread
+        self.worker_thread.start()
+
+    def limited_documentation_generated(self, result):
+        """Handle limited documentation generation results"""
+        # Get results
+        templates = result["templates"]
+        contact_info = result["contact_info"]  # Not used but kept for consistency
+        logs = result["logs"]
+
+        # Display success message
+        message = (
+            f"Limited documentation templates have been generated in:\n\n"
+            f"{os.path.dirname(list(templates.values())[0])}\n\n"
+            f"The following templates were created:\n"
+        )
+
+        for name, path in templates.items():
+            message += f"• {name}: {os.path.basename(path)}\n"
+
+        message += (
+            f"\nThese templates can help build a case with the limited documentation you have available. "
+            f"While they don't guarantee success with Apple, they provide the best chance "
+            f"for cases with non-standard documentation."
+        )
+
+        QMessageBox.information(
+            self,
+            "Limited Documentation Templates Generated",
+            message
+        )
+
+        # Display logs
+        self.logs_text.clear()
+        self.logs_text.append("<b>Limited Documentation Support Logs:</b>")
+        for log in logs:
+            self.logs_text.append(log)
+
+        # Switch to logs tab
+        self.tab_widget.setCurrentIndex(4)  # Logs tab
 
 def run_gui():
     """Run the GUI application"""

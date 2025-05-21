@@ -273,21 +273,24 @@ class CLI:
         while True:
             self.print_section("INHERITANCE SUPPORT OPTIONS")
             print("Please select an option:")
-            print("1. Generate Documentation Templates")
-            print("2. Show Apple Support Contact Information")
-            print("3. Return to Main Menu")
+            print("1. Generate Standard Documentation Templates")
+            print("2. Generate Limited Documentation Templates (for affidavits/partial proof)")
+            print("3. Show Apple Support Contact Information")
+            print("4. Return to Main Menu")
 
             try:
-                choice = int(input("\nEnter your choice (1-3): "))
-                if choice < 1 or choice > 3:
-                    print("Please enter a number between 1 and 3")
+                choice = int(input("\nEnter your choice (1-4): "))
+                if choice < 1 or choice > 4:
+                    print("Please enter a number between 1 and 4")
                     continue
 
                 if choice == 1:
                     self.generate_inheritance_documents(support)
                 elif choice == 2:
-                    self.show_apple_support_info(support)
+                    self.generate_limited_documentation(support)
                 elif choice == 3:
+                    self.show_apple_support_info(support)
+                elif choice == 4:
                     self.show_main_menu()
                     break
             except ValueError:
@@ -326,6 +329,60 @@ class CLI:
 
         print("\nPlease fill out these templates with your information and follow")
         print("Apple's official process for inherited devices.")
+
+        self.wait_for_key()
+
+    def generate_limited_documentation(self, support):
+        """Generate limited documentation templates"""
+        self.print_section("GENERATE LIMITED DOCUMENTATION TEMPLATES")
+        print("This will generate templates for cases with limited documentation, such as:")
+        print("• Affidavit templates")
+        print("• Third-party verification forms")
+        print("• Guides for gathering circumstantial evidence")
+        print("• Legal aid resources")
+        print("• Alternative options when recovery isn't possible")
+        print("\nThese templates are designed for cases where standard documentation is unavailable.")
+        print("While they don't guarantee success with Apple, they provide the best chance")
+        print("for cases with non-standard documentation.")
+
+        # Confirm
+        confirm = input("\nDo you want to proceed? (yes/no): ").lower()
+        if confirm != "yes":
+            print("Limited documentation generation cancelled.")
+            return
+
+        # Get output directory
+        output_dir = input("\nEnter output directory path (or press Enter for current directory): ")
+        if not output_dir:
+            output_dir = os.getcwd()
+
+        # Create directory if it doesn't exist
+        try:
+            os.makedirs(output_dir, exist_ok=True)
+            print(f"\nUsing directory: {output_dir}")
+        except Exception as e:
+            print(f"\nError creating directory: {e}")
+            print("Using current directory instead.")
+            output_dir = os.getcwd()
+
+        # Provide guidance for limited documentation
+        self.print_section("LIMITED DOCUMENTATION GUIDANCE")
+        support.provide_limited_documentation_guidance()
+
+        # Generate templates
+        print("\nGenerating limited documentation templates...")
+        templates = support.generate_limited_documentation_templates(output_dir)
+
+        # Show results
+        self.print_section("LIMITED DOCUMENTATION TEMPLATES GENERATED")
+        print(f"Templates have been generated in: {os.path.dirname(list(templates.values())[0])}")
+        print("\nThe following templates were created:")
+        for name, path in templates.items():
+            print(f"• {name}: {os.path.basename(path)}")
+
+        print("\nThese templates can help build a case with the limited documentation you have available.")
+        print("While they don't guarantee success with Apple, they provide the best chance")
+        print("for cases with non-standard documentation.")
 
         self.wait_for_key()
 

@@ -33,6 +33,7 @@ This tool provides a multi-layered approach to recovering iPhones from boot loop
 - **Comprehensive Testing**: Extensive test suite for reliability
 - **Ultimate Recovery**: Last-resort option that prioritizes device access over security (may bypass restrictions)
 - **Inheritance Support**: Guidance and documentation for accessing inherited devices through Apple's official process
+- **Limited Documentation Support**: Templates and guidance for cases with only affidavits or partial proof of ownership
 
 ## Target Devices
 
@@ -59,6 +60,9 @@ python main.py --ultimate
 
 # Access inheritance support for devices with unknown credentials
 python main.py --inheritance
+
+# Access limited documentation support (for affidavits/partial proof)
+python main.py --limited-docs
 
 # Run tests
 python main.py --test
