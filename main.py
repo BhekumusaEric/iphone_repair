@@ -80,6 +80,12 @@ def parse_args(args: List[str]) -> argparse.Namespace:
     )
 
     parser.add_argument(
+        "--inheritance",
+        action="store_true",
+        help="Access inheritance support for devices with unknown credentials"
+    )
+
+    parser.add_argument(
         "--test",
         action="store_true",
         help="Run tests"

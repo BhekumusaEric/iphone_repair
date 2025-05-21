@@ -54,6 +54,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from core.DiagnosticTool import DiagnosticTool, BootLoopCause, DeviceInfo
 from core.RecoveryTool import RecoveryTool, RecoveryMethod, RecoveryResult
 from core.UltimateRecovery import UltimateRecovery, UltimateRecoveryResult
+from core.InheritanceSupport import InheritanceSupport, InheritanceSupportResult
 from utils.device_communication import DeviceCommunication, DeviceMode
 
 class WorkerThread(QThread):
@@ -89,6 +90,8 @@ class WorkerThread(QThread):
                 self._perform_recovery()
             elif self.task_type == "perform_ultimate_recovery":
                 self._perform_ultimate_recovery()
+            elif self.task_type == "generate_inheritance_documents":
+                self._generate_inheritance_documents()
             else:
                 self.task_error.emit(f"Unknown task type: {self.task_type}")
         except Exception as e:
@@ -253,6 +256,41 @@ class WorkerThread(QThread):
             "ultimate": True
         })
 
+    def _generate_inheritance_documents(self):
+        """Generate inheritance documentation templates"""
+        output_dir = self.params.get("output_dir")
+
+        self.update_status.emit("Generating inheritance documentation templates...")
+        self.update_progress.emit(10)
+
+        # Create inheritance support tool
+        support = InheritanceSupport(debug=True)
+
+        # Provide guidance
+        self.update_status.emit("Providing inheritance guidance...")
+        self.update_progress.emit(30)
+        support.provide_inheritance_guidance()
+
+        # Generate documentation templates
+        self.update_status.emit("Generating documentation templates...")
+        self.update_progress.emit(50)
+        templates = support.generate_documentation_templates(output_dir)
+
+        # Get Apple support contact information
+        self.update_status.emit("Getting Apple support contact information...")
+        self.update_progress.emit(80)
+        contact_info = support.provide_apple_support_contact_info()
+
+        self.update_progress.emit(100)
+
+        # Return results
+        self.task_complete.emit({
+            "templates": templates,
+            "contact_info": contact_info,
+            "logs": support.logs,
+            "inheritance": True
+        })
+
 class MainWindow(QMainWindow):
     """Main window for the iPhone Boot Recovery Tool GUI"""
 
@@ -301,6 +339,7 @@ class MainWindow(QMainWindow):
         self.create_device_tab()
         self.create_diagnosis_tab()
         self.create_recovery_tab()
+        self.create_inheritance_tab()
         self.create_logs_tab()
 
         # Create status bar
@@ -492,6 +531,86 @@ class MainWindow(QMainWindow):
 
         # Add to tab widget
         self.tab_widget.addTab(recovery_tab, "Recovery")
+
+    def create_inheritance_tab(self):
+        """Create the inheritance support tab"""
+        inheritance_tab = QWidget()
+        layout = QVBoxLayout(inheritance_tab)
+
+        # Create inheritance support group
+        support_group = QGroupBox("Inherited Device Support")
+        support_layout = QVBoxLayout(support_group)
+
+        # Add explanation
+        explanation_label = QLabel(
+            "<b>Inherited Device Support</b><br><br>"
+            "This feature provides guidance and documentation for users who have inherited "
+            "devices but cannot access them due to activation lock or unknown credentials.<br><br>"
+            "If you have inherited an iPhone from someone who has passed away and cannot "
+            "access it due to iCloud Activation Lock or unknown credentials, Apple has an "
+            "official process to help with legitimate inheritance cases.<br><br>"
+            "<b>Note:</b> This requires proper documentation to prove legitimate inheritance."
+        )
+        explanation_label.setWordWrap(True)
+        support_layout.addWidget(explanation_label)
+
+        # Add generate documentation button
+        docs_button = QPushButton("Generate Documentation Templates")
+        docs_button.clicked.connect(self.generate_inheritance_documents)
+        support_layout.addWidget(docs_button)
+
+        # Add contact Apple button
+        contact_button = QPushButton("Show Apple Support Contact Information")
+        contact_button.clicked.connect(self.show_apple_support_info)
+        support_layout.addWidget(contact_button)
+
+        # Add to layout
+        layout.addWidget(support_group)
+
+        # Create documentation group
+        docs_group = QGroupBox("Required Documentation")
+        docs_layout = QVBoxLayout(docs_group)
+
+        # Add documentation info
+        docs_label = QLabel(
+            "<b>Documentation typically required by Apple:</b><br><br>"
+            "1. <b>Death Certificate</b> - Original or certified copy<br>"
+            "2. <b>Proof of Inheritance</b> - Will, probate document, or court order<br>"
+            "3. <b>Your Government-issued ID</b> - To verify your identity<br>"
+            "4. <b>Proof of Relationship</b> - Documents showing your relationship to the deceased<br>"
+            "5. <b>Proof of Purchase</b> (if available) - Original receipt or other proof<br><br>"
+            "The documentation templates will help you prepare these documents in the format "
+            "Apple typically requires for inherited device requests."
+        )
+        docs_label.setWordWrap(True)
+        docs_layout.addWidget(docs_label)
+
+        # Add to layout
+        layout.addWidget(docs_group)
+
+        # Create legal notice group
+        legal_group = QGroupBox("Legal Notice")
+        legal_layout = QVBoxLayout(legal_group)
+
+        # Add legal notice
+        legal_label = QLabel(
+            "<b>Important Legal Notice:</b><br><br>"
+            "This tool provides guidance for legitimate inheritance cases only. It does NOT "
+            "attempt to bypass security measures or activation locks.<br><br>"
+            "Attempting to bypass activation lock through unofficial means may violate laws "
+            "including the Digital Millennium Copyright Act (DMCA) and Computer Fraud and "
+            "Abuse Act (CFAA), as well as Apple's Terms of Service.<br><br>"
+            "Always follow Apple's official process for inherited devices."
+        )
+        legal_label.setWordWrap(True)
+        legal_label.setStyleSheet("color: #CC0000;")
+        legal_layout.addWidget(legal_label)
+
+        # Add to layout
+        layout.addWidget(legal_group)
+
+        # Add to tab widget
+        self.tab_widget.addTab(inheritance_tab, "Inherited Device")
 
     def create_logs_tab(self):
         """Create the logs tab"""
@@ -843,6 +962,102 @@ class MainWindow(QMainWindow):
         QMessageBox.critical(self, "Error", message)
         self.update_status("Error: " + message)
         self.progress_bar.setValue(0)
+
+    def generate_inheritance_documents(self):
+        """Generate inheritance documentation templates"""
+        # Get output directory
+        output_dir = QFileDialog.getExistingDirectory(
+            self,
+            "Select Output Directory for Documentation Templates",
+            os.path.expanduser("~"),
+            QFileDialog.ShowDirsOnly
+        )
+
+        if not output_dir:
+            return
+
+        # Create worker thread
+        self.worker_thread = WorkerThread(
+            "generate_inheritance_documents",
+            {"output_dir": output_dir}
+        )
+
+        # Connect signals
+        self.worker_thread.update_status.connect(self.update_status)
+        self.worker_thread.update_progress.connect(self.update_progress)
+        self.worker_thread.task_complete.connect(self.inheritance_documents_generated)
+        self.worker_thread.task_error.connect(self.show_error)
+
+        # Start thread
+        self.worker_thread.start()
+
+    def inheritance_documents_generated(self, result):
+        """Handle inheritance documents generation results"""
+        # Get results
+        templates = result["templates"]
+        contact_info = result["contact_info"]
+        logs = result["logs"]
+
+        # Display success message
+        message = (
+            f"Documentation templates have been generated in:\n\n"
+            f"{os.path.dirname(list(templates.values())[0])}\n\n"
+            f"The following templates were created:\n"
+        )
+
+        for name, path in templates.items():
+            message += f"• {name}: {os.path.basename(path)}\n"
+
+        message += (
+            f"\nPlease fill out these templates with your information and follow "
+            f"Apple's official process for inherited devices."
+        )
+
+        QMessageBox.information(
+            self,
+            "Documentation Templates Generated",
+            message
+        )
+
+        # Display logs
+        self.logs_text.clear()
+        self.logs_text.append("<b>Inheritance Support Logs:</b>")
+        for log in logs:
+            self.logs_text.append(log)
+
+        # Switch to logs tab
+        self.tab_widget.setCurrentIndex(4)  # Logs tab
+
+    def show_apple_support_info(self):
+        """Show Apple support contact information"""
+        # Create inheritance support
+        support = InheritanceSupport()
+
+        # Get contact information
+        contact_info = support.provide_apple_support_contact_info()
+
+        # Display contact information
+        message = (
+            f"<b>Apple Support Contact Information:</b><br><br>"
+            f"<b>Website:</b> <a href='{contact_info['website']}'>{contact_info['website']}</a><br>"
+            f"<b>Phone (US):</b> {contact_info['phone_us']}<br>"
+            f"<b>Inheritance Information:</b> <a href='{contact_info['inheritance_info']}'>{contact_info['inheritance_info']}</a><br>"
+            f"<b>Find an Apple Store:</b> <a href='{contact_info['apple_store']}'>{contact_info['apple_store']}</a><br>"
+            f"<b>Online Chat:</b> <a href='{contact_info['online_chat']}'>{contact_info['online_chat']}</a><br><br>"
+            f"<b>Next Steps:</b><br>"
+            f"1. Gather all required documentation<br>"
+            f"2. Contact Apple Support using one of the methods above<br>"
+            f"3. Explain that you have inherited a device and need assistance with activation lock<br>"
+            f"4. Follow their specific instructions for your case"
+        )
+
+        # Create message box with clickable links
+        msg_box = QMessageBox(self)
+        msg_box.setWindowTitle("Apple Support Contact Information")
+        msg_box.setText(message)
+        msg_box.setTextFormat(Qt.RichText)
+        msg_box.setStandardButtons(QMessageBox.Ok)
+        msg_box.exec_()
 
 def run_gui():
     """Run the GUI application"""

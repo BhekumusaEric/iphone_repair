@@ -17,6 +17,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from core.DiagnosticTool import DiagnosticTool, BootLoopCause
 from core.RecoveryTool import RecoveryTool, RecoveryMethod, RecoveryResult
 from core.UltimateRecovery import UltimateRecovery, UltimateRecoveryResult
+from core.InheritanceSupport import InheritanceSupport, InheritanceSupportResult
 
 class CLI:
     """Command Line Interface for iPhone Boot Recovery Tool"""
@@ -50,6 +51,38 @@ class CLI:
         print("This tool helps recover iPhones stuck on the Apple logo (boot loop).")
         print("It specializes in A12+ devices (iPhone XS/XR and newer) but works with older models too.")
 
+        # Show main menu
+        self.show_main_menu()
+
+    def show_main_menu(self):
+        """Show the main menu and handle user selection"""
+        while True:
+            self.print_section("MAIN MENU")
+            print("Please select an option:")
+            print("1. Boot Recovery (for devices stuck on Apple logo)")
+            print("2. Inherited Device Support (for accessing inherited devices)")
+            print("3. Exit")
+
+            try:
+                choice = int(input("\nEnter your choice (1-3): "))
+                if choice < 1 or choice > 3:
+                    print("Please enter a number between 1 and 3")
+                    continue
+
+                if choice == 1:
+                    self.run_boot_recovery()
+                    break
+                elif choice == 2:
+                    self.run_inheritance_support()
+                    break
+                elif choice == 3:
+                    print("\nExiting. Thank you for using iPhone Boot Recovery Tool.")
+                    sys.exit(0)
+            except ValueError:
+                print("Please enter a valid number")
+
+    def run_boot_recovery(self):
+        """Run the boot recovery process"""
         self.print_section("DEVICE DETECTION")
         print("Please connect your iPhone to this computer using a Lightning or USB-C cable.")
         print("If your device is not already in recovery mode, the tool will guide you.")
@@ -216,6 +249,107 @@ class CLI:
         print("Thank you for using the iPhone Boot Recovery Tool.")
         print("If you found this tool helpful, please consider supporting its development.")
         print("For more information, visit: https://github.com/BhekumusaEric/iphone_repair")
+
+    def run_inheritance_support(self):
+        """Run the inheritance support process"""
+        self.print_section("INHERITED DEVICE SUPPORT")
+        print("This feature provides guidance and documentation for users who have inherited")
+        print("devices but cannot access them due to activation lock or unknown credentials.")
+        print("\nIf you have inherited an iPhone from someone who has passed away and cannot")
+        print("access it due to iCloud Activation Lock or unknown credentials, Apple has an")
+        print("official process to help with legitimate inheritance cases.")
+        print("\nNote: This requires proper documentation to prove legitimate inheritance.")
+
+        self.wait_for_key()
+
+        # Create inheritance support
+        support = InheritanceSupport(debug=True)
+
+        # Provide guidance
+        self.print_section("INHERITANCE GUIDANCE")
+        support.provide_inheritance_guidance()
+
+        # Show menu
+        while True:
+            self.print_section("INHERITANCE SUPPORT OPTIONS")
+            print("Please select an option:")
+            print("1. Generate Documentation Templates")
+            print("2. Show Apple Support Contact Information")
+            print("3. Return to Main Menu")
+
+            try:
+                choice = int(input("\nEnter your choice (1-3): "))
+                if choice < 1 or choice > 3:
+                    print("Please enter a number between 1 and 3")
+                    continue
+
+                if choice == 1:
+                    self.generate_inheritance_documents(support)
+                elif choice == 2:
+                    self.show_apple_support_info(support)
+                elif choice == 3:
+                    self.show_main_menu()
+                    break
+            except ValueError:
+                print("Please enter a valid number")
+
+    def generate_inheritance_documents(self, support):
+        """Generate inheritance documentation templates"""
+        self.print_section("GENERATE DOCUMENTATION TEMPLATES")
+        print("This will generate documentation templates for inheritance claims.")
+        print("Please specify where to save the templates.")
+
+        # Get output directory
+        output_dir = input("\nEnter output directory path (or press Enter for current directory): ")
+        if not output_dir:
+            output_dir = os.getcwd()
+
+        # Create directory if it doesn't exist
+        try:
+            os.makedirs(output_dir, exist_ok=True)
+            print(f"\nUsing directory: {output_dir}")
+        except Exception as e:
+            print(f"\nError creating directory: {e}")
+            print("Using current directory instead.")
+            output_dir = os.getcwd()
+
+        # Generate templates
+        print("\nGenerating documentation templates...")
+        templates = support.generate_documentation_templates(output_dir)
+
+        # Show results
+        self.print_section("DOCUMENTATION TEMPLATES GENERATED")
+        print(f"Templates have been generated in: {os.path.dirname(list(templates.values())[0])}")
+        print("\nThe following templates were created:")
+        for name, path in templates.items():
+            print(f"• {name}: {os.path.basename(path)}")
+
+        print("\nPlease fill out these templates with your information and follow")
+        print("Apple's official process for inherited devices.")
+
+        self.wait_for_key()
+
+    def show_apple_support_info(self, support):
+        """Show Apple support contact information"""
+        self.print_section("APPLE SUPPORT CONTACT INFORMATION")
+
+        # Get contact information
+        contact_info = support.provide_apple_support_contact_info()
+
+        # Display contact information
+        print(f"Website: {contact_info['website']}")
+        print(f"Phone (US): {contact_info['phone_us']}")
+        print(f"Inheritance Information: {contact_info['inheritance_info']}")
+        print(f"Find an Apple Store: {contact_info['apple_store']}")
+        print(f"Online Chat: {contact_info['online_chat']}")
+
+        print("\nNext Steps:")
+        print("1. Gather all required documentation")
+        print("2. Contact Apple Support using one of the methods above")
+        print("3. Explain that you have inherited a device and need assistance with activation lock")
+        print("4. Follow their specific instructions for your case")
+
+        self.wait_for_key()
 
 if __name__ == "__main__":
     cli = CLI()

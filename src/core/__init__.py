@@ -9,6 +9,7 @@ from .DiagnosticTool import DiagnosticTool, BootLoopCause, DeviceInfo
 from .RecoveryTool import RecoveryTool, RecoveryMethod, RecoveryResult
 from .AdvancedRecovery import AdvancedRecovery, FilesystemRepairResult, FirmwarePatchResult
 from .UltimateRecovery import UltimateRecovery, UltimateRecoveryResult
+from .InheritanceSupport import InheritanceSupport, InheritanceSupportResult
 
 __all__ = [
     'DiagnosticTool',
@@ -21,5 +22,7 @@ __all__ = [
     'FilesystemRepairResult',
     'FirmwarePatchResult',
     'UltimateRecovery',
-    'UltimateRecoveryResult'
+    'UltimateRecoveryResult',
+    'InheritanceSupport',
+    'InheritanceSupportResult'
 ]

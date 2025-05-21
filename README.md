@@ -32,6 +32,7 @@ This tool provides a multi-layered approach to recovering iPhones from boot loop
 - **Device Simulation**: Test mode for development and demonstration
 - **Comprehensive Testing**: Extensive test suite for reliability
 - **Ultimate Recovery**: Last-resort option that prioritizes device access over security (may bypass restrictions)
+- **Inheritance Support**: Guidance and documentation for accessing inherited devices through Apple's official process
 
 ## Target Devices
 
@@ -55,6 +56,9 @@ python main.py --advanced
 
 # Enable ultimate recovery mode (last resort)
 python main.py --ultimate
+
+# Access inheritance support for devices with unknown credentials
+python main.py --inheritance
 
 # Run tests
 python main.py --test
